@@ -14,7 +14,7 @@ You need to have latest update of python 3 and the following python libraries in
 Simply clone or download the repository to your computer. 
 
 ### Usage
-Navigate to the folder where you downloaded FeatClust and run the main.py python script.
+Navigate to the folder where you downloaded FeatClust and run the main.py python script. Note a small dataset has been provided here for testing. To use your own datset, you may need to change the path to point to your dataset. Note that FeatClust will open the plots in a browser environment and the same plots will be saved in your folder as 'html' file to be accessed later.  
 
 ### File Description
 The FeatClust package contains several python files. A description of the files is as follows:
@@ -24,3 +24,6 @@ The FeatClust package contains several python files. A description of the files 
 4. PairwiseDists.py - Contains functions for computing pairwise distances and kernels between cells. Various distances/kernels are included.
 5. Transformations.py - Contains functions to perform PCA (and in the future other types of transformations) on the dataset. 
 6. FeatClust.py - Contains the implementation of the FeatClust method. 
+
+### Contact
+For reporting bugs or help regarding any aspect of the FeatClust method, please email: vans.edw@gmail.com 
