@@ -19,10 +19,12 @@ def GramMatrix(K):
 
 def GeneFilter(X, pct_dropout_min, pct_dropout_max):
     
-    print("GENE FILTER- Shape of data used: ")
-    print(X.shape)
+    print("Applying Gene Filter . . .")
+
     dropouts = (np.sum(X == 0, axis = 1, keepdims = False)/X.shape[1]) * 100
     gene_filter = (dropouts < pct_dropout_max) & (dropouts > pct_dropout_min)
+
+    print("Shape of Expression Matrix after Gene Filtering: ", X[gene_filter, :].shape)
 
     return X[gene_filter, :]
 
@@ -31,7 +33,8 @@ def FeatureNormalization(X, norm):
 # X shape is (features, samples)
 # norm is either l2, mean
 # Returns a matrix X_nrm containing normalized values
-
+    print ("Applying " + norm + " Normalization . . .")
+    
     if (norm == "l2"):
         X_nrm = normalize(X.T, axis=0)
         X_nrm = X_nrm.T

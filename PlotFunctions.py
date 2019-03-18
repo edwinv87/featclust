@@ -33,7 +33,7 @@ def PCAPlot(sc_obj, color_by, dist_or_kernel = "linear"):
                            y = y[mask], 
                            mode = 'markers', 
                            showlegend = True, 
-                           name = cell_types[i],
+                           name = "cell_type-" + str(cell_types[i]),
                            marker = dict(size = 10, color = colors[i]))
         data.append(trace)
         
@@ -113,7 +113,7 @@ def SilhouetteAndScatterPlot(sc_obj, n_clusters, method_name, pca_dist_or_kernel
     # This gives a perspective into the density and separation of the formed
     # clusters
     silhouette_avg = silhouette_score(X_filt.T, labels)
-    print("For n_clusters =", n_clusters, "The average silhouette_score is :", silhouette_avg)
+    # print("For n_clusters =", n_clusters, "The average silhouette_score is :", silhouette_avg)
 
     # Compute the silhouette scores for each sample
     sample_silhouette_values = silhouette_samples(X_filt.T, labels)
@@ -150,6 +150,7 @@ def SilhouetteAndScatterPlot(sc_obj, n_clusters, method_name, pca_dist_or_kernel
     fig.append_trace(axis_line, 1, 1)
     
     # 2nd Plot showing the actual clusters formed
+    cell_types = sc_obj.getDistinctCellTypes(method_name) 
 
     for i in range(n_clusters):
         mask = (labels == i)
@@ -157,7 +158,7 @@ def SilhouetteAndScatterPlot(sc_obj, n_clusters, method_name, pca_dist_or_kernel
                            y = y[mask], 
                            mode = 'markers', 
                            showlegend = True, 
-                           name = "cell_type-" + str(i+1),
+                           name = "cell_type-" + str(cell_types[i]),
                            marker = dict(size = 5, color = colors[i]))
         fig.append_trace(trace, 1, 2)
 

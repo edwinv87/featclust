@@ -33,7 +33,7 @@ def PCA(X, dist_or_kernel = 'linear', n_comp = 1):
     idx2 = E_val > 0
     E_val = E_val[idx2]
     E_vec = E_vec[:, idx2]
-    print("Maximum components possible = ", E_val.size)
+    # print("Maximum components possible = ", E_val.size)
 
     # Scale eigenvectors so that np.dot(D[:,0].T, D[:, 0]) * E[0] = 1
 
