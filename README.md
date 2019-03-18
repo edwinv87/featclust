@@ -1,5 +1,5 @@
 # FeatClust
-FeatClust: Clustering of Small Sample Single-Cell RNA-Seq datasets via Feature Clustering and Selection
+FeatClust: Clustering of Small Sample Single-Cell RNA-Seq datasets via Feature Clustering and Selection.
 FeatClust is for clustering and visualization of SingleCell RNA-Seq datasets. It is implemented in python programming language. 
 
 ### Requirements
