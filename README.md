@@ -22,3 +22,4 @@ The FeatClust package contains several python files. A description of the files 
 3. UtilFunctions.py - Contains some utility functions for pre-processing and normalization of single cell dataset.
 4. PairwiseDists.py - Contains functions for computing pairwise distances and kernels between cells. Various distances are included.
 5. Transformations.py - Contains functions to perform PCA (and in the future other types of transformations) on the dataset. 
+6. FeatClust.py - Contains the implementation of the FeatClust method. 
