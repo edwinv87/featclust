@@ -14,20 +14,19 @@ from PlotFunctions import PCAPlot, SilhouetteAndScatterPlot
 from plotly.offline import plot
 from plotly.io import write_image
 
-# Dataset parameters as python dictionary
-dataset_params = {  'biase': {'label': 'cell_type1', 'nc': 3},
-                    'yan': {'label': 'cell_type2', 'nc': 7},
-                    'goolam': {'label': 'cell_type1', 'nc': 5},
-                    'fan': {'label': 'cell_type1', 'nc': 6},
-                    'treutlein': {'label': 'cell_type1', 'nc': 5},
-                    'ting': {'label': 'cell_type2', 'nc': 7}}
+# Dataset specific parameters as python dictionary. Can store many dataset specific parameters
+dataset_params = {'biase': {'label': 'cell_type1', 'nc': 3}}
 
+# Name of the dataset
 dataset = 'biase'
 
-data_path = "../../New_Datasets/" + dataset + '/' + dataset + "_data.csv"
-celldata_path = "../../New_Datasets/" + dataset + '/' + dataset + "_celldata.csv"
-genedata_path = "../../New_Datasets/" + dataset + '/' + dataset + "_genedata.csv"
+# Create dataset path
+data_path = "data/" + dataset + '/' + dataset + "_data.csv"
+celldata_path = "data/" + dataset + '/' + dataset + "_celldata.csv"
+genedata_path = "data/" + dataset + '/' + dataset + "_genedata.csv"
 
+# Read the dataset using Pandas read_csv function. Note: Other types of files can be read using the 
+# appropriate function. See Pandas documentation
 data = pd.read_csv(data_path, index_col=0)
 celldata = pd.read_csv(celldata_path, index_col=0)
 genedata = pd.read_csv(genedata_path, index_col = 0)
@@ -36,7 +35,7 @@ genedata = pd.read_csv(genedata_path, index_col = 0)
 sc = SingleCell(dataset,data,celldata,genedata)
 
 # Get parameters from the dictionary
-label = dataset_params[dataset]['label']
+label = dataset_params[dataset]['label'] # The name of the column in the Cell meta data which contains the true cell names
 nc = dataset_params[dataset]['nc']
 
 # Exclude the following cells from analysis of biase dataset
@@ -68,4 +67,6 @@ plot(PCAPlot(sc, color_by = "FeatClust", dist_or_kernel="linear"), filename="Fea
 # Plot silhouette and scatter plots as subplots and save plot in pdf
 fig = SilhouetteAndScatterPlot(sc, n_clusters=nc, method_name="FeatClust")
 plot(fig, filename="silhouette-scatter_plot.html")
+
+# You can also write the plot to a PDF file. You may need to install additional libraries. 
 write_image(fig, 'silhouette-scatter_plot.pdf')
