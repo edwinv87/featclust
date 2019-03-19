@@ -3,77 +3,82 @@ import pandas as pd
 import numpy as np 
 
 from sklearn.cluster import FeatureAgglomeration, AgglomerativeClustering
-
-
-from sklearn.metrics import silhouette_samples, silhouette_score
+from sklearn.metrics import silhouette_score
 
 from UtilFunctions import GeneFilter, FeatureNormalization
 
 
 
-def FeatureScores(X, labels, n_clusters):
+"""
+============================
+Method Name: Feature Cluster
+============================
 
-    s_score = silhouette_samples(X, labels)
-    s_average = np.mean(s_score)
+Method Description: This method clusters features of the input X using agglomerative hierarchical 
+                    clustering using Ward linkage and returns the labels of the clustered features 
+                    and the variance of the feature cluster centers.
 
-    n_groups = 0                                # Number of groups in which the silhouette score for any sample is > average for all samples 
-    feat_score = np.zeros(n_clusters)
-
-    for i in range(n_clusters):
-        mask1 = labels == i
-        s_score_i = s_score[mask1]
-        mask2 = s_score_i > s_average
-
-        feat_score[i] = np.sum(mask2)/np.sum(mask1)
-        # if (np.amax(s_score_i) > s_average):    # If the silhouette score of any sample is > average for all samples
-        #     n_groups = n_groups + 1
-        
-    # return (n_groups/n_clusters)       # return both scores
-    if (s_average < 0):
-        return 0
-    else:
-        return s_average
+Arguments:
+========== 
+X           -   (n x d) input matrix, where n is number of samples, d is the dimension
+n_featclust -   the number of group to cluster the features into
 
 
+Returns:
+========
+feat_labels -   d-dimensional vector containing the cluster labels of the features. 
+                Labels are from 0 to n_featclust-1
+feat_var    -   vector of size n_featclust containing the variance of the cluster centers 
 
-def FeatureExtraction(X, n_featclust):
+"""
 
-    """
-    X           - (n x d) input matrix, where n is number of samples, d is the dimension
-    n_featclust - number of groupings of features in data
+def FeatureCluster(X, n_featclust):
 
-    *check if any features feature groups dont have any features 
-    """
     n_samples, _ = X.shape
-    fa = FeatureAgglomeration(n_clusters = n_featclust, affinity = "euclidean", linkage="ward", memory="featagg-tree", compute_full_tree = True)
-    #fa = FeatureAgglomeration(n_clusters = n_clusters, affinity = "euclidean", linkage="ward")
+    fa = FeatureAgglomeration(n_clusters = n_featclust, affinity = "euclidean", linkage="ward")
     fa.fit(X)
     feat_labels = fa.labels_
     feat_means = np.zeros([n_samples, n_featclust])
-    #X_red = np.zeros([n_samples, n_featcust])
     feat_var = np.zeros(n_featclust)
         
     for i in range(n_featclust):
         mask = feat_labels == i
         chunk = X[:, mask]
-        feat_means[:, i] = np.mean(chunk, axis = 1)
-        feat_var[i] = np.var(np.mean(chunk, axis = 1))
+        feat_means[:, i] = np.mean(chunk, axis = 1) # Cluster center computed by computing the mean. 
+        feat_var[i] = np.var(feat_means[:, i])
 
-    idx = np.argmin(feat_var)
-    # print("variance =", feat_var[idx])
-    mask2 = feat_labels != idx
-    X_red = X[:, mask2]
+    return feat_labels, feat_var
 
-    return X_red
-    #return feat_means, feat_var, feat_labels
 
-# Feature Agglomeration Hierarcihical Clustering
+"""
+============================
+Method Name: FeatClust
+============================
+
+Method Description: This method implements the proposed FeatClust approach. 
+
+Arguments:
+========== 
+sc_obj              -   A single cell object which contains the data and metadata of genes and cells
+n_clusters          -   The number of group to cluster the data into. This is in the range 2 <= n_clusters < n. Default (10)
+gene_filt           -   A boolean variable. Gene filtering is done if True. Default (True)
+apply_normalization -   A boolean variable. Data is normalized if True. Default (True)
+normalization       -   A string variable. The type of normalization to apply. Options are "l2", "mean" and "norm6". Default ("l2")
+k                   -
+
+
+Returns:
+========
+sc_obj              -   The single cell object containing the cluster labels in the CellData assay. A column is added to the cell data 
+                        assay containing the cluster labels. The column name is the method name 'FeatClust'. 
+
+"""
+
 def FeatClust(  sc_obj,                                
                 n_clusters = 10, 
                 gene_filt = True, 
                 apply_normalization = True, 
                 normalization = "l2", 
-                compare_with = 'cell_type1',
                 k = 10):
 
     method_name = "FeatClust"
@@ -94,37 +99,35 @@ def FeatClust(  sc_obj,
     else:
         X_nrm = X_filt
     
-    # print(X_nrm[0,0])
     X_nrm = X_nrm.T # (samples, features)
 
     # Number of samples and features after gene filtering and normalization
-    n_samples, _ = X_nrm.shape
+    n_samples, n_features = X_nrm.shape
     
-    # r = int((top_n_pct/100) * n_samples)
-    # print("No of features through %: ", r)
     n = np.arange(n_clusters, k+1)
     n = np.flip(n)
 
     s_score = np.zeros(n.shape[0])
     pred_labels = np.zeros([n_samples, n.shape[0]])
 
-
-    # means, var, labs = FeatureExtraction(X_nrm, k)
-
     model = AgglomerativeClustering(n_clusters=n_clusters)
 
-
     print("Computing clusters . . .")
-    k = 0
+    i = 0
+
+    feat_labels, feat_var = FeatureCluster(X_nrm, k)
+    idx = np.argsort(feat_var)
+    mask = np.ones(n_features, dtype = bool)
 
     for j in n:
 
-        X_red = FeatureExtraction(X_nrm, j)
+        mask = (feat_labels != idx[i]) & mask
+        X_red = X_nrm[:, mask]
 
-        pred_labels[:, k] = model.fit_predict(X_red)
-        s_score[k] = FeatureScores(X_filt.T, pred_labels[:, k], n_clusters)
-        X_nrm = X_red
-        k = k + 1
+        pred_labels[:, i] = model.fit_predict(X_red)
+        s_score[i] = silhouette_score(X_filt.T, pred_labels[:, i])
+
+        i = i + 1
 
     # Select the label with the highest average silhouette coefficient
     index = np.argmax(s_score)
