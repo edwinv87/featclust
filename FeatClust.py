@@ -64,7 +64,7 @@ n_clusters          -   The number of group to cluster the data into. This is in
 gene_filt           -   A boolean variable. Gene filtering is done if True. Default (True)
 apply_normalization -   A boolean variable. Data is normalized if True. Default (True)
 normalization       -   A string variable. The type of normalization to apply. Options are "l2", "mean" and "norm6". Default ("l2")
-k                   -
+k                   -   The number of groups to divide the features of the dataset into. Valid range n_clusters <= k < d. DefaultDefault (10)
 
 
 Returns:
